@@ -12,10 +12,18 @@ class SoftwareInstaller:
      self.create_directory = Path("C:/temp")
      #Conf to install
      self.programs = {
-        "Google Chrome": {
+          "7-Zip": {
+                "url": "https://www.7-zip.org/a/7z2400-x64.exe",
+                "install_cmd": ["/S"],
+                "filename": "7zip_installer.exe",
+                "checks": [
+                    {"type": "file", "path": r"C:\Program Files\7-Zip\7z.exe"}
+                ]
+            },
+         "Google Chrome": {
                 "url": "https://dl.google.com/chrome/install/standalonesetup.exe",
                 "install_cmd": ["/silent", "/install"],
-                "filename": "chrome_installer.exe",
+                "filename": "standalonesetup.exe",
                 "checks": [
                     {"type": "registry", "path": r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Google Chrome"}
                 ]
@@ -40,14 +48,14 @@ class SoftwareInstaller:
 
     def is_installed(self, checks):
         for check in checks:
-            if checks["type"] == "registry":
+            if check["type"] == "registry":
                try:
                   reg.OpenKey(reg.HKEY_LOCAL_MACHINE, check['path'])
                   return True
                except WindowsError:
                   pass
             elif check["type"] == "file":
-               if Path(check["type" == "file"]):
+               if Path(check['path']).exists():
                  return True
             return False
 
@@ -71,7 +79,7 @@ class SoftwareInstaller:
          print("\nDownload completed")
          return True
       except Exception as e:
-         print("Failed...: {e}")
+         print(f"Failed...: {e}")
          return False
       
     def install_program(self, installer_path: Path, install_cmd: list)-> bool:
@@ -97,7 +105,7 @@ class SoftwareInstaller:
     def run(self) -> None:
       print(" ==Automated Software Installer")
 
-      for program,details in self.programs.items:
+      for program,details in self.programs.items():
          print(f"\nProcesing {program}")
 
          #Skip is installed
@@ -108,16 +116,16 @@ class SoftwareInstaller:
          installer_path = self.download_dir / details["filename"]
          #Doanloaded is needd?
          if not installer_path.exists():
-            if not self.download_with_progress(details["url"].details["filename"]):
+            if not self.download_with_progress(details["url"],details["filename"]):
                continue
          #install
          if self.install_program(installer_path, details["install_cmd"]):
             #"Cleanup if"
             # self.cleanup
-         time.sleep(3)
+            time.sleep(3)
 
       print("\ninstalled proccess completed script")
 
-if __name__ = "__main__"
+if __name__ == "__main__":
    installer = SoftwareInstaller()
    installer.run()
