@@ -1,9 +1,15 @@
-
+import time
+import subprocess
+import requests
+import winreg as reg
+from typing import Dict, Any
+import sys
 from pathlib import Path
-class SoftwareInst:
+
+class SoftwareInstaller:
     def __init__(self):
-     self.download_dir = Path("")
-     self.create_directory = Path("")
+     self.download_dir = Path("C:/temp")
+     self.create_directory = Path("C:/temp")
      #Conf to install
      self.programs = {
         "Google Chrome": {
@@ -15,7 +21,6 @@ class SoftwareInst:
                 ]
             },
      }
-    
 
     def create_directory(self, path: Path):
        #create if not exists
@@ -33,7 +38,7 @@ class SoftwareInst:
            print("error")
            sys.exit(1)
 
-    def is_installed(self, checks:):
+    def is_installed(self, checks):
         for check in checks:
             if checks["type"] == "registry":
                try:
@@ -44,69 +49,75 @@ class SoftwareInst:
             elif check["type"] == "file":
                if Path(check["type" == "file"]):
                  return True
-         return False
+            return False
 
-   def download_with_progress() ->bool:
-      "Display descarga"
+    def download_with_progress(self, filename,url) ->bool:
+      #"Display descarga"
       try:
          local_path = self.download_dir / filename
          print(f"Downloading {filename}...")
-         with request.get(url, stream=True) as r:
+         with requests.get(url, stream=True) as r:
             r.raise_for_status()
             total_size = int
             downloaded = 0
 
-            with open()
-               for chunk in r.iter
+            with open(local_path, 'wb') as f:
+               for chunk in r.iter_content(chunk_size=8125):
                   f.write(chunk)
-                  downloaded +=
-                  progress
-                  print(f"Progress:")
+                  downloaded += len(chunk)
+                  progress = (downloaded / total_size) * 100 if total_size > 0 else 0
+                  print(f"Progress of download: {progress}")
+
          print("\nDownload completed")
          return True
       except Exception as e:
-         print("Failed..")
+         print("Failed...: {e}")
          return False
-   def install_program(self,):
-      #Run with elevations
-      try:
-         print(f"Installing{installer}")
-         #use powershell
-         cmd = f'Start-Process'
-         if sys.platform == "win32"
-            cmd += ' -Verb RunAs'
-
-   def cleanup():
-      "delete after install"
-      try:
-         (self.downalod_dir /filename)
-         print(f"Delete installer")
-      except OSError as e:
-         print()
       
-   def run(self) -> None:
+    def install_program(self, installer_path: Path, install_cmd: list)-> bool:
+      #Run with elevations
+        try:
+         print(f"Installing {installer_path.name}")
+         #use powershell
+         cmd = f'Start-Process -FilePath "{installer_path}" -ArgumentList "{ " ".join(install_cmd)}" -Wait'
+         if sys.platform == "win32":
+            cmd += ' -Verb RunAs'
+        except subprocess.calledProcessError as e:
+            print(f"Instalation failled: {e}")
+            return False
+
+   # def cleanup():
+   #    "delete after install"
+   #    try:
+   #       (self.downalod_dir /filename)
+   #       print(f"Delete installer")
+   #    except OSError as e:
+   #       print()
+      
+    def run(self) -> None:
       print(" ==Automated Software Installer")
 
-      for program,details in self.programs:
-         print()
+      for program,details in self.programs.items:
+         print(f"\nProcesing {program}")
 
          #Skip is installed
-         if self_is_installed
-            print(f"{program}")
-            coontinue
+         if self.is_installed(details["checks"]):
+            print(f"{program} is already installed. Skip..")
+            continue
          
-         installer_path = self.downloaded
+         installer_path = self.download_dir / details["filename"]
          #Doanloaded is needd?
-         if not installer_path.exists
-            if not
+         if not installer_path.exists():
+            if not self.download_with_progress(details["url"].details["filename"]):
                continue
          #install
-         if slef.install_program
-            "Cleanup if"
-            self.cleanup
+         if self.install_program(installer_path, details["install_cmd"]):
+            #"Cleanup if"
+            # self.cleanup
          time.sleep(3)
 
-      print(#\ninstalled#)
-if __nsmr__ ?= #min:
-   instaler = SoftwareInstaler()
-   installer.run
+      print("\ninstalled proccess completed script")
+
+if __name__ = "__main__"
+   installer = SoftwareInstaller()
+   installer.run()
